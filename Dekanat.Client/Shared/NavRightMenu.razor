@@ -1,0 +1,44 @@
+﻿@inject HttpClient Http
+@inject IUriHelper UriHelper
+<div class="right menu">
+    <div class="ui simple dropdown item ">
+        Личный кабинет <i class="dropdown icon"></i>
+        <div class="menu">
+            @if (isAuth) {
+                <NavLink class="item" href="profile">
+                    Профиль
+                </NavLink>
+                <div class="divider"></div>
+                <button type="submit" class="item">
+                    ВЫЙТИ
+                </button>
+                <NavLink class="item" href="register">
+                    Выйти
+                </NavLink>
+            }
+            else {
+                <NavLink class="item" href="login">
+                    Войти
+                </NavLink>
+                <div class="divider"></div>
+                <NavLink class="item" href="register">
+                    Регистрация
+                </NavLink>
+            }
+        </div>
+    </div>
+</div>
+
+@functions{
+    bool isAuth;
+
+    /*private async Task LogOff() {
+        await Http.GetAsync("api/Account/LogOff");
+        UriHelper.NavigateTo("/");
+    }*/
+    protected override async Task OnParametersSetAsync() {
+
+        isAuth = await Http.GetJsonAsync<bool>("api/Account/Authorized");
+    }
+
+}

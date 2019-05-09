@@ -1,0 +1,24 @@
+﻿@page "/profile"
+@using Dekanat.Shared 
+@inject HttpClient Http
+
+<h1>@Persone.Email</h1>
+
+
+
+
+
+
+
+
+
+
+@functions{
+    ProfileViewModel Persone { get; set; }
+
+    protected override async Task OnInitAsync() {
+
+        Persone = new ProfileViewModel();
+        Persone = await Http.GetJsonAsync<ProfileViewModel>("api/Account/Profile");
+    }
+}

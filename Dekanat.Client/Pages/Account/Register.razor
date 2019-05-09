@@ -1,0 +1,63 @@
+﻿@page "/register"
+@using Dekanat.Shared
+@inject HttpClient Http
+@inject IUriHelper UriHelper
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <h2 class="ui header">
+            Регистрация
+        </h2>
+        <form class="ui form">
+            <EditForm Model="@registerviewmodel">
+                <DataAnnotationsValidator />
+                <div class="ui segment">
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <InputText id="email" bind-Value="@registerviewmodel.Email" />
+                        </div>
+                        <ValidationMessage For="@(() => registerviewmodel.Email)" />
+                    </div>
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <InputText id="password" bind-Value="@registerviewmodel.Password" />
+                        </div>
+                        <ValidationMessage For="@(() => registerviewmodel.Password)" />
+                    </div>
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <InputText id="passwordconfirm" bind-Value="@registerviewmodel.PasswordConfirm" />
+                        </div>
+                        <ValidationMessage For="@(() => registerviewmodel.PasswordConfirm)" />
+                    </div>
+
+                    <button type="submit" class="ui secondary button" onclick="@HandleValidSubmit">
+                        Зарегистрироваться
+                    </button>
+
+                </div>
+            </EditForm>
+        </form>
+    </div>
+</div>
+
+@functions {
+
+    RegisterViewModel registerviewmodel { get; set; }
+
+    private async Task HandleValidSubmit() {
+        var response = await Http.PostJsonAsync<RegisterViewModel>("api/Account/Register", registerviewmodel);
+        UriHelper.NavigateTo("/");
+    }
+
+    protected override void OnInit() {
+        base.OnInit();
+        registerviewmodel = new RegisterViewModel();
+    }
+}

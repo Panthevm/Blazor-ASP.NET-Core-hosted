@@ -1,0 +1,66 @@
+﻿@page "/login"
+@using Dekanat.Shared
+@inject HttpClient Http
+@inject IUriHelper UriHelper
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <h2 class="ui header">
+            Вход
+        </h2>
+        <form class="ui form">
+            <EditForm Model="@LoginModel">
+                <DataAnnotationsValidator />
+                <div class="ui segment">
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <InputText id="email" bind-Value="@LoginModel.Email" />
+                        </div>
+                        <ValidationMessage For="@(() => LoginModel.Email)" />
+                    </div>
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <InputText id="password" bind-Value="@LoginModel.Password" />
+                        </div>
+                        <ValidationMessage For="@(() => LoginModel.Password)" />
+                    </div>
+
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+
+                            <InputCheckbox id="remember" bind-Value="@LoginModel.RememberMe" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="ui secondary button" onclick="@HandleValidSubmit">
+                        Войти
+                    </button>
+
+                </div>
+            </EditForm>
+        </form>
+
+        <div class="ui message">
+            Нет аккаунта? <NavLink href="guide"> Зарегистрируйтесь</NavLink>
+        </div>
+    </div>
+</div>
+
+@functions {
+    LoginViewModel LoginModel { get; set; }
+
+    private async Task HandleValidSubmit() {
+        var response = await Http.PostJsonAsync<LoginViewModel>("api/Account/Login", LoginModel);
+        UriHelper.NavigateTo("/");
+    }
+
+    protected override void OnInit() {
+        base.OnInit();
+        LoginModel = new LoginViewModel();
+    }
+}
