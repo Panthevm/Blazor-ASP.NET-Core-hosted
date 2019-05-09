@@ -1,8 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@inject HttpClient Http
 
-<NavMenu />
+<NavMenu isAuth ="@isAuth"/>
 
 <div class="ui main container">
     @Body
 </div>
 
+@functions{
+    bool isAuth;
+
+    protected override async Task OnParametersSetAsync() {
+
+        isAuth = await Http.GetJsonAsync<bool>("api/Account/Authorized");
+    }
+
+}

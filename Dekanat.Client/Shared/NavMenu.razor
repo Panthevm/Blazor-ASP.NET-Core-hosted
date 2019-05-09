@@ -14,6 +14,35 @@
             Руководство использования
         </NavLink>
 
-        <NavRightMenu />
+        <div class="right menu">
+            <div class="ui simple dropdown item ">
+                Личный кабинет <i class="dropdown icon"></i>
+                <div class="menu">
+                    @if (isAuth) {
+                        <NavLink class="item" href="profile">
+                            Профиль
+                        </NavLink>
+                        <div class="divider"></div>
+                        <NavLink class="item" href="register">
+                            Выйти
+                        </NavLink>
+                    }
+                    else {
+                        <NavLink class="item" href="login">
+                            Войти
+                        </NavLink>
+                        <div class="divider"></div>
+                        <NavLink class="item" href="register">
+                            Регистрация
+                        </NavLink>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+@functions{
+    [Parameter]
+    private bool isAuth { get; set; }
+}
