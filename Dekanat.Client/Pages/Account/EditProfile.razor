@@ -1,0 +1,58 @@
+﻿
+@page "/profile/edit"
+
+@using Dekanat.Shared
+@inject HttpClient Http
+@inject IUriHelper UriHelper
+<div class="ui form">
+    <EditForm Model="@Persone">
+        <DataAnnotationsValidator />
+
+        <div class="three fields">
+            <div class="field">
+
+                <label>Фамилия</label>
+                <InputText id="firstname" bind-Value="@Persone.LastName" />
+
+                <ValidationMessage For="@(() => Persone.LastName)" />
+            </div>
+            <div class="field">
+
+                <label>Имя</label>
+                <InputText id="firstname" bind-Value="@Persone.FirstName" />
+
+                <ValidationMessage For="@(() => Persone.FirstName)" />
+            </div>
+            <div class="field">
+
+                <label>Отчество</label>
+                <InputText id="firstname" bind-Value="@Persone.SurName" />
+
+                <ValidationMessage For="@(() => Persone.SurName)" />
+            </div>
+        </div>
+
+        <button type="submit" class="ui secondary button" onclick="@HandleValidSubmit">
+            Сохранить
+        </button>
+
+    </EditForm>
+
+</div>
+
+@functions{
+    ProfileViewModel Persone { get; set; }
+
+    private async Task HandleValidSubmit() {
+        await Http.PostJsonAsync<ProfileViewModel>("api/Account/Edit", Persone);
+
+        UriHelper.NavigateTo("/profile");
+    }
+
+    protected override async Task OnInitAsync() {
+        base.OnInit();
+
+        Persone = new ProfileViewModel();
+        Persone = await Http.GetJsonAsync<ProfileViewModel>("api/Account/Profile");
+    }
+}

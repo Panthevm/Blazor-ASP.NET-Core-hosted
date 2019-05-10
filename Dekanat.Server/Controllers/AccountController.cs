@@ -68,14 +68,13 @@ namespace Dekanat.Server.Controllers {
         #endregion Login
 
         #region Profile
-        //[Authorize]
         [HttpGet]
         [Route("Authorized")]
         public bool IsAuthirized() {
             return User.Identity.IsAuthenticated;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet]
         [Route("Profile")]
         public async Task<ProfileViewModel> GetUserAsync() {
@@ -91,6 +90,32 @@ namespace Dekanat.Server.Controllers {
             model.Roles = "Role";
 
             return model;
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("Edit")]
+        public async Task<IActionResult> ProfileEdit([FromBody] ProfileViewModel model) {
+            if (!ModelState.IsValid) {
+                return BadRequest();
+            }
+
+            User user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.SurName = model.SurName;
+            IdentityResult result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded) {
+                return Ok(model);
+            }
+            else {
+                return BadRequest();
+            }
+            
         }
 
         #endregion Profile

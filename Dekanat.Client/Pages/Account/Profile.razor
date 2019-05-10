@@ -1,10 +1,43 @@
 ﻿@page "/profile"
-@using Dekanat.Shared 
+@using Dekanat.Shared
 @inject HttpClient Http
 
-<h1>@Persone.Email</h1>
+<div class="ui grid">
 
+    <div class="ten wide column">
+        <!-- Persone info -->
+        <div class="ui cards">
+            <div class="card">
+                <div class="content">
+                    @if (Persone.Email == null) {
+                        <div class="ui placeholder">
+                            <div class="header">
+                                <div class="very short line"></div>
+                                <div class="medium line"></div>
+                            </div>
+                        </div>
+                    }
+                    else {
+                <div class="header"> @Persone.LastName @Persone.FirstName @Persone.SurName </div>
+                        <div class="description">
+                            @Persone.Email
+                        </div>
+                    }
 
+                </div>
+                <NavLink class="ui bottom attached button" href="profile/edit">
+                    <i class="edit icon"></i>
+                    Редактировать
+                </NavLink>
+            </div>
+        </div>
+        <!-- /Persone info -->
+    </div>
+
+    <div class="six wide column">
+        <h1>@Persone.Email</h1>
+    </div>
+</div>
 
 
 
