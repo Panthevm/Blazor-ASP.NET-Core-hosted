@@ -55,7 +55,8 @@
     LoginViewModel LoginModel { get; set; }
 
     private async Task HandleValidSubmit() {
-        var response = await Http.PostJsonAsync<LoginViewModel>("api/Account/Login", LoginModel);
+        await Http.PostJsonAsync<LoginViewModel>("api/Account/Login", LoginModel);
+        
         UriHelper.NavigateTo("/");
     }
 
