@@ -1,0 +1,54 @@
+﻿@page "/students"
+@using Dekanat.Shared
+@inject HttpClient Http
+
+<div class="ui grid">
+    <table class="ui compact celled definition table" style="padding-left: 0px; padding-right: 0px;">
+        <thead class="full-width">
+            <tr>
+                <th>ФИО</th>
+                <th>Факультет</th>
+                <th>Кафедра</th>
+                <th>Направление подготовки</th>
+                <th>Курс</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (studets != null) {
+                @foreach (var student in studets) {
+                    <tr>
+                        <td>@student.LastName @student.FirsName @student.MiddleName</td>
+                        <td>September 14, 2013</td>
+                        <td>jhlilk22@yahoo.com</td>
+                        <td>No</td>
+                    </tr>
+                }
+            }
+
+
+        </tbody>
+        <tfoot class="full-width">
+            <tr>
+                <th></th>
+                <th colspan="4">
+                    <div class="ui small  button">
+                        Approve
+                    </div>
+                    <div class="ui small  disabled button">
+                        Approve All
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+
+</div>
+
+@functions{
+    List<StudentViewModel> studets;
+
+
+     protected override async Task OnInitAsync() {
+        studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
+    }
+}
