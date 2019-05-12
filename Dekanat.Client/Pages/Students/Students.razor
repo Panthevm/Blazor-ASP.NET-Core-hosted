@@ -1,7 +1,14 @@
 ﻿@page "/students"
 @using Dekanat.Shared
 @inject HttpClient Http
-
+<div class="ui secondary pointing menu">
+    <button class="active item" onclick="@ShowModal">
+        Добавить студента
+    </button>
+    <a class="active item trigger">
+        Поиск
+    </a>
+</div>
 <div class="ui grid">
     <table class="ui compact celled definition table" style="padding-left: 0px; padding-right: 0px;">
         <thead class="full-width">
@@ -11,44 +18,149 @@
                 <th>Кафедра</th>
                 <th>Направление подготовки</th>
                 <th>Курс</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            @if (studets != null) {
+            @if (studets == null) {
+                <tr>
+                    <td> Loading... </td>
+                </tr>
+            }
+            else {
                 @foreach (var student in studets) {
                     <tr>
-                        <td>@student.LastName @student.FirsName @student.MiddleName</td>
-                        <td>September 14, 2013</td>
-                        <td>jhlilk22@yahoo.com</td>
-                        <td>No</td>
+                        <td> @student.LastName @student.FirsName @student.MiddleName </td>
+
+                        <td> @student.Faculty </td>
+
+                        <td> @student.Pulpit </td>
+
+                        <td> @student.TrainingDirection </td>
+                        <td> @GetCourse(student.ReceiptDate) </td>
+                        <td>
+                            <button class="ui secondary basic button mini">Редактировать</button>
+                            <button class="ui negative basic button mini" onclick="@RemoveRow(student.Id)">Удалить</button>
+                        </td>
+
                     </tr>
                 }
             }
-
-
         </tbody>
-        <tfoot class="full-width">
-            <tr>
-                <th></th>
-                <th colspan="4">
-                    <div class="ui small  button">
-                        Approve
-                    </div>
-                    <div class="ui small  disabled button">
-                        Approve All
-                    </div>
-                </th>
-            </tr>
-        </tfoot>
     </table>
 
 </div>
+@if (ModalVisible) {
+    <div class="ui dimmer modals page transition visible active" style="display: flex !important;">
+        <div class="ui standard test modal transition visible active" style="display: block !important;">
+            <div class="header">
+                Добавление студента
+            </div>
+            <div class="content">
+                <form class="ui form">
+                    <EditForm Model="@StudentModel">
+                        <div class="ui segment">
+
+                            <div class="three fields">
+                                <div class="field">
+                                    <label>Фамилия</label>
+                                    <InputText id="LastName" bind-Value="@StudentModel.LastName" />
+                                </div>
+
+                                <div class="field">
+                                    <label>Имя</label>
+                                    <InputText id="FirsName" bind-Value="@StudentModel.FirsName" />
+                                </div>
+
+                                <div class="field">
+                                    <label>Отчество</label>
+                                    <InputText id="MiddleName" bind-Value="@StudentModel.MiddleName" />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Факультет</label>
+                                <InputText id="Faculty" bind-Value="@StudentModel.Faculty" />
+                            </div>
+
+                            <div class="field">
+                                <label>Кафедра</label>
+                                <InputText id="Pulpit" bind-Value="@StudentModel.Pulpit" />
+                            </div>
+
+                            <div class="field">
+                                <label>Направление подготовки</label>
+                                <InputText id="TrainingDirection" bind-Value="@StudentModel.TrainingDirection" />
+                            </div>
+
+                            <div class="field">
+                                <label>Дата поступления</label>
+                                <InputDate id="ReceiptDate" bind-Value="@StudentModel.ReceiptDate" />
+                            </div>
+
+                            <div class="field">
+                                <label>Год рождения</label>
+                                <InputDate id="YearOfBirth" bind-Value="@StudentModel.YearOfBirth" />
+                            </div>
+
+
+                            <div class="field">
+                                <label>Адрес проживания</label>
+                                <InputText id="Address" bind-Value="@StudentModel.Address" />
+                            </div>
+
+                            <div class="field">
+                                <label>Номер телефона</label>
+                                <InputText id="PhoneNumber" bind-Value="@StudentModel.PhoneNumber" />
+                            </div>
+
+                        </div>
+                    </EditForm>
+                </form>
+            </div>
+            <div class="actions">
+                <button class="ui black deny button" onclick="@ShowModal">
+                    Закрыть
+                </button>
+                <button type="submit" class="ui secondary button" onclick="@HandleValidSubmit">
+                    Добавить
+                </button>
+
+            </div>
+        </div>
+    </div>
+}
+
+
 
 @functions{
+    bool ModalVisible = false;
     List<StudentViewModel> studets;
+    StudentViewModel StudentModel { get; set; }
 
+    private void ShowModal() {
+        ModalVisible = !ModalVisible;
+    }
 
-     protected override async Task OnInitAsync() {
+    protected override async Task OnInitAsync() {
+        StudentModel = new StudentViewModel();
+        studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
+
+    }
+
+    private int GetCourse(DateTime date) {
+        return DateTime.Now.Year - date.Year + 1;
+    }
+
+    private async Task RemoveRow(string id) {
+        await Http.PostJsonAsync<int>("api/Students/Delete", id);
         studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
     }
+
+    private async Task HandleValidSubmit() {
+        await Http.PostJsonAsync<StudentViewModel>("api/Students/Add", StudentModel);
+        studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
+        ShowModal();
+    }
+
 }

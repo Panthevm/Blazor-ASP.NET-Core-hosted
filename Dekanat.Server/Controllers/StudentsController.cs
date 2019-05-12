@@ -3,6 +3,7 @@ using Dekanat.Server.Models;
 using Dekanat.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,17 +26,19 @@ namespace Dekanat.Server.Controllers {
                 return BadRequest();
             }
 
-            Student user = new Student { FirsName = model.FirsName,
-                                         MiddleName = model.MiddleName,
-                                         LastName = model.LastName,
-                                         Faculty = model.Faculty,
-                                         Pulpit = model.Pulpit,
-                                         ReceiptDate = model.ReceiptDate,
-                                         Address = model.Address,
-                                         TrainingDirection = model.TrainingDirection,
-                                         FormOfStudy = model.FormOfStudy,
-                                         PhoneNumber = model.PhoneNumber,
-                                         YearOfBirth = model.YearOfBirth };
+            Student user = new Student {
+                FirsName = model.FirsName,
+                MiddleName = model.MiddleName,
+                LastName = model.LastName,
+                Faculty = model.Faculty,
+                Pulpit = model.Pulpit,
+                ReceiptDate = model.ReceiptDate,
+                Address = model.Address,
+                TrainingDirection = model.TrainingDirection,
+                FormOfStudy = model.FormOfStudy,
+                PhoneNumber = model.PhoneNumber,
+                YearOfBirth = model.YearOfBirth
+            };
 
             if (user != null) {
                 db.Students.Add(user);
@@ -52,6 +55,21 @@ namespace Dekanat.Server.Controllers {
         public List<Student> GetSudents() {
 
             return db.Students.ToList();
+        }
+
+        [HttpPost]
+        [Route("Delete")]
+        public async Task<IActionResult> DeleteStudentAsync(int id) {
+
+            Student obj = db.Students.FirstOrDefault(p => p.Id == id);
+
+            if (obj == null) {
+                return StatusCode(500);
+            }
+
+            db.Students.Remove(obj);
+            await db.SaveChangesAsync();
+            return Ok();
         }
     }
 }
