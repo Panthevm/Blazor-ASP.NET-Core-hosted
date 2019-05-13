@@ -53,23 +53,47 @@ namespace Dekanat.Server.Controllers {
         [HttpGet]
         [Route("Get")]
         public List<Student> GetSudents() {
-
             return db.Students.ToList();
         }
 
-        [HttpPost]
-        [Route("Delete")]
+        [HttpGet]
+        [Route("Get/{id}")]
+        public Student GetSudent(int id) {
+            return db.Students.Find(id);
+        }
+
+        [HttpDelete]
+        [Route("Delete/{id}")]
         public async Task<IActionResult> DeleteStudentAsync(int id) {
-
-            Student obj = db.Students.FirstOrDefault(p => p.Id == id);
-
-            if (obj == null) {
-                return StatusCode(500);
-            }
-
+            Student obj = db.Students.Find(id);
             db.Students.Remove(obj);
             await db.SaveChangesAsync();
-            return Ok();
+            return Ok(obj);
+        }
+
+        [HttpPost]
+        [Route("Save")]
+        public async Task<IActionResult> GetSudents([FromBody] Student model) {
+            if (!ModelState.IsValid) {
+                return BadRequest(500);
+            }
+
+            Student obj = new Student {
+                FirsName = model.FirsName,
+                MiddleName = model.MiddleName,
+                LastName = model.LastName,
+                Faculty = model.Faculty,
+                Pulpit = model.Pulpit,
+                ReceiptDate = model.ReceiptDate,
+                Address = model.Address,
+                TrainingDirection = model.TrainingDirection,
+                FormOfStudy = model.FormOfStudy,
+                PhoneNumber = model.PhoneNumber,
+                YearOfBirth = model.YearOfBirth
+            };
+            db.Students.Update(model);
+            await db.SaveChangesAsync();
+            return Ok(obj);
         }
     }
 }

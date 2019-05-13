@@ -39,10 +39,9 @@
                         <td> @student.TrainingDirection </td>
                         <td> @GetCourse(student.ReceiptDate) </td>
                         <td>
-                            <button class="ui secondary basic button mini">Редактировать</button>
-                            <button class="ui negative basic button mini" onclick="@RemoveRow(student.Id)">Удалить</button>
+                            <button class="ui secondary basic button mini" onclick="@(()=>EditStudent(@student.Id))">Редактировать</button>
+                            <button class="ui negative basic button mini" onclick="@(()=>RemoveRowT(@student.Id))">Удалить</button>
                         </td>
-
                     </tr>
                 }
             }
@@ -130,31 +129,125 @@
         </div>
     </div>
 }
+@if (ModalEditVisible) {
+    <div class="ui dimmer modals page transition visible active" style="display: flex !important;">
+        <div class="ui standard test modal transition visible active" style="display: block !important;">
+            <div class="header">
+                Редактирование студента
+            </div>
+            <div class="content">
+                <form class="ui form">
+                    <EditForm Model="@StudentModel">
+                        <div class="ui segment">
 
+                            <div class="three fields">
+                                <div class="field">
+                                    <label>Фамилия</label>
+                                    <InputText id="LastName" bind-Value="@StudentModel.LastName" />
+                                </div>
+
+                                <div class="field">
+                                    <label>Имя</label>
+                                    <InputText id="FirsName" bind-Value="@StudentModel.FirsName" />
+                                </div>
+
+                                <div class="field">
+                                    <label>Отчество</label>
+                                    <InputText id="MiddleName" bind-Value="@StudentModel.MiddleName" />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label>Факультет</label>
+                                <InputText id="Faculty" bind-Value="@StudentModel.Faculty" />
+                            </div>
+
+                            <div class="field">
+                                <label>Кафедра</label>
+                                <InputText id="Pulpit" bind-Value="@StudentModel.Pulpit" />
+                            </div>
+
+                            <div class="field">
+                                <label>Направление подготовки</label>
+                                <InputText id="TrainingDirection" bind-Value="@StudentModel.TrainingDirection" />
+                            </div>
+
+                            <div class="field">
+                                <label>Дата поступления</label>
+                                <InputDate id="ReceiptDate" bind-Value="@StudentModel.ReceiptDate" />
+                            </div>
+
+                            <div class="field">
+                                <label>Год рождения</label>
+                                <InputDate id="YearOfBirth" bind-Value="@StudentModel.YearOfBirth" />
+                            </div>
+
+
+                            <div class="field">
+                                <label>Адрес проживания</label>
+                                <InputText id="Address" bind-Value="@StudentModel.Address" />
+                            </div>
+
+                            <div class="field">
+                                <label>Номер телефона</label>
+                                <InputText id="PhoneNumber" bind-Value="@StudentModel.PhoneNumber" />
+                            </div>
+
+                        </div>
+                    </EditForm>
+                </form>
+            </div>
+            <div class="actions">
+                <button class="ui black deny button" onclick="@ShowModalEditl">
+                    Закрыть
+                </button>
+                <button type="submit" class="ui secondary button" onclick="@SaveEdit">
+                    Сохранить
+                </button>
+
+            </div>
+        </div>
+    </div>
+}
 
 
 @functions{
     bool ModalVisible = false;
+    bool ModalEditVisible = false;
     List<StudentViewModel> studets;
     StudentViewModel StudentModel { get; set; }
 
     private void ShowModal() {
+        StudentModel = new StudentViewModel();
         ModalVisible = !ModalVisible;
+    }
+    private void ShowModalEditl() {
+        ModalEditVisible = !ModalEditVisible;
     }
 
     protected override async Task OnInitAsync() {
         StudentModel = new StudentViewModel();
         studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
-
     }
 
     private int GetCourse(DateTime date) {
         return DateTime.Now.Year - date.Year + 1;
     }
 
-    private async Task RemoveRow(string id) {
-        await Http.PostJsonAsync<int>("api/Students/Delete", id);
+    private async Task RemoveRowT(int id) {
+        await Http.DeleteAsync("api/Students/Delete/" + Convert.ToInt32(id));
         studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
+    }
+
+    private async Task EditStudent(int id) {
+        ModalEditVisible = !ModalEditVisible;
+        StudentModel = await Http.GetJsonAsync<StudentViewModel>("api/Students/Get/" + Convert.ToInt32(id));
+    }
+
+    private async Task SaveEdit() {
+        await Http.PostJsonAsync<StudentViewModel>("api/Students/Save", StudentModel);
+        studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
+        ShowModalEditl();
     }
 
     private async Task HandleValidSubmit() {

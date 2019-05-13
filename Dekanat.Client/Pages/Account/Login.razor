@@ -57,7 +57,7 @@
     private async Task HandleValidSubmit() {
         await Http.PostJsonAsync<LoginViewModel>("api/Account/Login", LoginModel);
         
-        UriHelper.NavigateTo("/");
+        UriHelper.NavigateTo("/profile");
     }
 
     protected override void OnInit() {
