@@ -6,6 +6,7 @@ namespace Dekanat.Server.Data {
     public class ApplicationContext : IdentityDbContext<User> {
 
         public DbSet<Student> Students { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) {
             Database.EnsureCreated();
         }

@@ -1,0 +1,122 @@
+﻿@page "/report"
+@using Dekanat.Shared
+@inject HttpClient Http
+<div class="ui grid">
+    <div class="four wide column">
+        <div class="ui vertical fluid tabular menu">
+            <button class="item" onclick="@(()=>MenuLin(true))">
+                Информация о студенте
+            </button>
+            <a class="item" onclick="@(()=>MenuLin(false))">
+                Статистика
+            </a>
+            <NavLink class="item" href="certificate">
+                Составление справок
+            </NavLink>
+        </div>
+    </div>
+    <div class="twelve wide stretched column">
+
+
+            @if (infoVision) {
+
+                    <form class="ui form">
+                        <EditForm Model="@StudentModel">
+                            <h1>Информация о студенте</h1>
+                            <div class="field">
+                                <label>Введите номер зачетной книжки</label>
+                                <InputNumber id="Pulpit" bind-Value="@StudentModel.NumberCard" />
+                            </div>
+                            <button type="submit" class="ui secondary button" onclick="@GetStudent">
+                                Поиск
+                            </button>
+                        </EditForm>
+                    </form>
+
+
+
+
+                @if (Card) {
+
+                        <div class="content">
+                            <br />
+                            <h2>@StudentModel.FirsName @StudentModel.MiddleName @StudentModel.LastName</h2>
+                       
+                            <div class="meta">
+                                <span class="date">Дата поступления @StudentModel.ReceiptDate</span>
+                            </div>
+                            <div class="description">
+                                Номер зачетной книжки: @StudentModel.NumberCard <br />
+                                Факультет: @StudentModel.Faculty <br />
+                                Кафедра: @StudentModel.Pulpit <br />
+                                Направление подготовки: @StudentModel.TrainingDirection <br />
+                                Дата поступления: @StudentModel.ReceiptDate <br />
+                                Адрес проживания: @StudentModel.Address <br />
+                                Номер телефона: @StudentModel.PhoneNumber<br />
+                            </div>
+                            <div class="divider"></div>
+                            <div class="ui list">
+
+                                @if (lessons == null) {
+                                    <div class="item">
+                                        Нет данных
+                                    </div>
+                                }
+                                else {
+                                    @foreach (var lesson in lessons) {
+                                        <div class="item">
+                                            <strong>Номер семестра:</strong>@lesson.Session <strong> Дисцилина:</strong> @lesson.Name<strong> Тип:</strong>@if (lesson.Type) {<text>Экзамен</text>}
+                                        else { <strong>Экзамен</strong>} <strong> Оценка:</strong>@lesson.Assessment
+                                    </div>
+                                }
+                                }
+                            </div>
+                        </div>
+
+
+                }
+
+            }
+            else {
+                <div class="ui segment">
+                    <div class="ui statistics">
+                        <div class="statistic">
+                            <div class="value">
+                                @Number
+                            </div>
+                            <div class="label">
+                                Студентов
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+
+
+    </div>
+</div>
+@functions{
+    StudentViewModel StudentModel { get; set; }
+    List<LessonViewModel> lessons;
+
+    bool infoVision = true;
+    bool Card = false;
+    int Number;
+    private void MenuLin(bool p) {
+        infoVision = Convert.ToBoolean(p);
+    }
+
+    protected override async Task OnInitAsync() {
+        StudentModel = new StudentViewModel();
+        Number = await Http.GetJsonAsync<int>("api/Students/Count");
+    }
+
+    private async Task GetStudent() {
+        Card = true;
+        StudentModel = await Http.GetJsonAsync<StudentViewModel>("api/Students/GetCard/" + Convert.ToInt32(StudentModel.NumberCard));
+        lessons = await Http.GetJsonAsync<List<LessonViewModel>>("api/Students/GetCardLesson/" + Convert.ToInt32(StudentModel.NumberCard));
+    }
+
+}

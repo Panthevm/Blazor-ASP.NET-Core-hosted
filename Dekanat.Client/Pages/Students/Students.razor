@@ -1,13 +1,11 @@
 ﻿@page "/students"
 @using Dekanat.Shared
 @inject HttpClient Http
+
 <div class="ui secondary pointing menu">
     <button class="active item" onclick="@ShowModal">
         Добавить студента
     </button>
-    <a class="active item trigger">
-        Поиск
-    </a>
 </div>
 <div class="ui grid">
     <table class="ui compact celled definition table" style="padding-left: 0px; padding-right: 0px;">
@@ -78,6 +76,11 @@
                             </div>
 
                             <div class="field">
+                                <label>Номер зачетной книжки</label>
+                                <InputNumber id="NumberCard" bind-Value="@StudentModel.NumberCard" />
+                            </div>
+
+                            <div class="field">
                                 <label>Факультет</label>
                                 <InputText id="Faculty" bind-Value="@StudentModel.Faculty" />
                             </div>
@@ -91,7 +94,10 @@
                                 <label>Направление подготовки</label>
                                 <InputText id="TrainingDirection" bind-Value="@StudentModel.TrainingDirection" />
                             </div>
-
+                            <div class="field">
+                                <label>Форма обучения</label>
+                                <InputText id="FormStudi" bind-Value="@StudentModel.FormOfStudy" />
+                            </div>
                             <div class="field">
                                 <label>Дата поступления</label>
                                 <InputDate id="ReceiptDate" bind-Value="@StudentModel.ReceiptDate" />
@@ -158,6 +164,11 @@
                             </div>
 
                             <div class="field">
+                                <label>Номер зачетной книжки</label>
+                                <InputNumber id="NumberCard" bind-Value="@StudentModel.NumberCard" />
+                            </div>
+
+                            <div class="field">
                                 <label>Факультет</label>
                                 <InputText id="Faculty" bind-Value="@StudentModel.Faculty" />
                             </div>
@@ -171,7 +182,10 @@
                                 <label>Направление подготовки</label>
                                 <InputText id="TrainingDirection" bind-Value="@StudentModel.TrainingDirection" />
                             </div>
-
+                            <div class="field">
+                                <label>Форма обучения</label>
+                                <InputText id="FormStudi" bind-Value="@StudentModel.FormOfStudy" />
+                            </div>
                             <div class="field">
                                 <label>Дата поступления</label>
                                 <InputDate id="ReceiptDate" bind-Value="@StudentModel.ReceiptDate" />
@@ -197,6 +211,56 @@
                     </EditForm>
                 </form>
             </div>
+
+            <div class="header">
+                Оценки
+            </div>
+            <div class="content">
+                <div class="ui list">
+
+                    @if (lessons == null) {
+                        <div class="item">
+                            Нет данных
+                        </div>
+                    }
+                    else {
+                        @foreach (var lesson in lessons) {
+                <div class="item">
+                    <strong>Номер семестра:</strong>@lesson.Session <strong> Дисцилина:</strong> @lesson.Name <strong> Тип:</strong>@if (lesson.Type) {<text>Экзамен</text>}
+                    else { <strong>Экзамен</strong>} <strong> Оценка:</strong>@lesson.Assessment
+                </div>
+                    }
+                    }
+                </div>
+
+                <form class="ui form">
+                    <EditForm Model="@LessonModel">
+                        <div class="ui segment">
+
+                            <div class="four fields">
+                                <div class="field">
+                                    <label>Название дисциплины</label>
+                                    <InputText id="Name" bind-Value="@LessonModel.Name" />
+                                </div>
+                                <div class="field">
+                                    <label>Семестр</label>
+                                    <InputNumber id="Session" bind-Value="@LessonModel.Session" />
+                                </div>
+                                <div class="field">
+                                    <label>Тип (зачет/экзамен)</label>
+                                    <InputCheckbox id="Type" bind-Value="@LessonModel.Type" />
+                                </div>
+
+                                <div class="field">
+                                    <label>Оценка</label>
+                                    <InputText id="Assessment" bind-Value="@LessonModel.Assessment" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </EditForm>
+                </form>
+            </div>
             <div class="actions">
                 <button class="ui black deny button" onclick="@ShowModalEditl">
                     Закрыть
@@ -214,8 +278,13 @@
 @functions{
     bool ModalVisible = false;
     bool ModalEditVisible = false;
+
     List<StudentViewModel> studets;
     StudentViewModel StudentModel { get; set; }
+
+    List<LessonViewModel> lessons;
+    LessonViewModel LessonModel { get; set; }
+
 
     private void ShowModal() {
         StudentModel = new StudentViewModel();
@@ -227,6 +296,8 @@
 
     protected override async Task OnInitAsync() {
         StudentModel = new StudentViewModel();
+        LessonModel = new LessonViewModel();
+
         studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
     }
 
@@ -242,12 +313,22 @@
     private async Task EditStudent(int id) {
         ModalEditVisible = !ModalEditVisible;
         StudentModel = await Http.GetJsonAsync<StudentViewModel>("api/Students/Get/" + Convert.ToInt32(id));
+        lessons = await Http.GetJsonAsync<List<LessonViewModel>>("api/Students/GetCardLesson/" + Convert.ToInt32(StudentModel.NumberCard));
     }
 
     private async Task SaveEdit() {
         await Http.PostJsonAsync<StudentViewModel>("api/Students/Save", StudentModel);
+
+        LessonModel.Persone = StudentModel.NumberCard;
+        await Http.PostJsonAsync<LessonViewModel>("api/Students/AddLesson", LessonModel);
+
         studets = await Http.GetJsonAsync<List<StudentViewModel>>("api/Students/Get");
-        ShowModalEditl();
+        if (lessons != null) {
+            lessons = await Http.GetJsonAsync<List<LessonViewModel>>("api/Students/GetCardLesson/" + Convert.ToInt32(StudentModel.NumberCard));
+            //lessons = await Http.GetJsonAsync<List<LessonViewModel>>("api/Students/GetLessons");
+        }
+        
+        //ShowModalEditl();
     }
 
     private async Task HandleValidSubmit() {

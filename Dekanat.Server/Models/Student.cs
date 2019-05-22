@@ -5,6 +5,9 @@ namespace Dekanat.Server.Models {
     public class Student {
         public int Id { get; set; }
 
+        [Display(Name = "Номер зачетной книжки")]
+        public int NumberCard { get; set; }
+
         [Display(Name = "Имя")]
         public string FirsName { get; set; }
 

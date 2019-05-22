@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dekanat.Server.Controllers {
+    [Authorize]
     [Route("api/Students")]
     [ApiController]
     public class StudentsController : ControllerBase {
@@ -94,6 +95,56 @@ namespace Dekanat.Server.Controllers {
             db.Students.Update(model);
             await db.SaveChangesAsync();
             return Ok(obj);
+        }
+
+        [HttpGet]
+        [Route("GetCard/{id}")]
+        public Student GetSudentCard(int id) {
+            return db.Students.Where(s => s.NumberCard == id).Single();
+        }
+
+        [HttpGet]
+        [Route("GetCardLesson/{id}")]
+        public List<Lesson> GetSudentCardLesson(int id) {
+            return db.Lessons.Where(s => s.Persone == id).ToList();
+        }
+
+        [HttpGet]
+        [Route("Count")]
+        public int GetCount() {
+            var count = from m in db.Students select m;
+            return count.Count();
+        }
+
+        [HttpPost]
+        [Route("AddLesson")]
+        public async Task<IActionResult> StudentsLessonAdd([FromBody] Lesson model) {
+            if (!ModelState.IsValid) {
+                return BadRequest();
+            }
+
+            Lesson lesson = new Lesson {
+                Persone = model.Persone,
+                Type = model.Type,
+                Assessment = model.Assessment,
+                Name = model.Name,
+                Session = model.Session
+            };
+
+            if (lesson != null) {
+                db.Lessons.Add(lesson);
+                await db.SaveChangesAsync();
+                return Ok(model);
+            }
+            else {
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetLessons")]
+        public List<Lesson> GetLessons() {
+            return db.Lessons.ToList();
         }
     }
 }

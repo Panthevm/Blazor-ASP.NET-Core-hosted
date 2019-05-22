@@ -24,16 +24,15 @@
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            <InputText id="password" bind-Value="@LoginModel.Password" />
+                            <InputText id="password" bind-Value="@LoginModel.Password"/>
                         </div>
-                        <ValidationMessage For="@(() => LoginModel.Password)" />
+                        <ValidationMessage For="@(() => LoginModel.Password)"/>
                     </div>
 
                     <div class="field">
-                        <div class="ui left icon input">
-                            <i class="lock icon"></i>
-
+                        <div class="ui checkbox">
                             <InputCheckbox id="remember" bind-Value="@LoginModel.RememberMe" />
+                            <label>Запомнить</label>
                         </div>
                     </div>
 
@@ -46,17 +45,17 @@
         </form>
 
         <div class="ui message">
-            Нет аккаунта? <NavLink href="guide"> Зарегистрируйтесь</NavLink>
+           Нет аккаунта? <NavLink href="guide"> Зарегистрируйтесь</NavLink>
         </div>
     </div>
 </div>
 
 @functions {
     LoginViewModel LoginModel { get; set; }
-
+    string res;
     private async Task HandleValidSubmit() {
         await Http.PostJsonAsync<LoginViewModel>("api/Account/Login", LoginModel);
-        
+
         UriHelper.NavigateTo("/profile");
     }
 
