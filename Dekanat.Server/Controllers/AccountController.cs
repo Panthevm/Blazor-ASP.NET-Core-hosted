@@ -49,14 +49,11 @@ namespace Dekanat.Server.Controllers {
             }
 
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
-
             if (!result.Succeeded) {
-                return BadRequest("Неправильный логин и (или) пароль");
-            }
-            else {
-                return Ok(model);
+                return BadRequest();
             }
 
+            return Ok(model);
         }
 
         [HttpPost]

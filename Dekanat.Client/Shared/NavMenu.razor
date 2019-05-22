@@ -1,4 +1,6 @@
-﻿<div class="ui fixed inverted menu">
+﻿@inject HttpClient Http
+@inject IUriHelper UriHelper
+<div class="ui fixed inverted menu">
     <div class="ui container">
 
         <NavLink class="header item" href="">
@@ -23,9 +25,9 @@
                             Профиль
                         </NavLink>
                         <div class="divider"></div>
-                        <NavLink class="item" href="register">
+                        <buttom type="submit" class="item" onclick="@LogOff">
                             Выйти
-                        </NavLink>
+                        </buttom>
                     }
                     else {
                         <NavLink class="item" href="login">
@@ -45,4 +47,10 @@
 @functions{
     [Parameter]
     private bool isAuth { get; set; }
+
+    private async Task LogOff() {
+        await Http.PostJsonAsync("api/Account/LogOff", null);
+
+        UriHelper.NavigateTo("/");
+    }
 }
